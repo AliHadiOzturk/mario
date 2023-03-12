@@ -2,7 +2,7 @@
   "name": "mario",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://alihadiozturk.github.io/mario",
+  "homepage": "https://alihadiozturk.github.io/mario/",
   "type": "module",
   "scripts": {
     "dev": "vite",
