@@ -230,16 +230,7 @@ k.scene("main", () => {
     })
 
     player.onCollide("castle", () => {
-        const video = document.createElement("video")
-        video.height = window.innerHeight
-        video.width = window.innerWidth
-        video.src = "after_credit.mp4"
-        video.autoplay = true
-        video.play()
-        video.controls = true
-        // document.body.removeChild()
-        document.getElementsByTagName("canvas")[0]?.remove()
-        document.body.appendChild(video)
+        window.location.href = "./credit.html"
     })
 
     player.onCollide("dy", (dy) => {
