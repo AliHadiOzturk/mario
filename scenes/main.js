@@ -1,16 +1,27 @@
 import k from "../kaboom"
+import levels from "../levels.json"
 
 let intervals = {
     enemy: null
 }
 
 const MOVE_SPEED = 300
-const ELEMENT_COUNT = 1000
+const ELEMENT_COUNT = levels.first[levels.first.length - 1].length
 
 const score = {
     heart: 0,
     flower: 0
 }
+
+let pets = {
+    ceviz: null,
+    ares: null
+}
+
+let jumping = false
+
+
+// const levels = JSON.parse(lj)
 
 //TODO: Fix here. Too much workaround :)
 let collidingFloor = null
@@ -21,8 +32,7 @@ k.scene("main", () => {
 
     const player = k.add([
         k.sprite("aho"), 
-        k.pos(k.width() * 0.01, 
-        k.height() * 0.01), 
+        k.pos(k.width() * 0.02, k.height() * 0.01), 
         k.body(), 
         k.area(),
         k.solid(),
@@ -69,8 +79,9 @@ k.scene("main", () => {
 
     player.onUpdate(() => {
         if (player.pos.y >= k.height() + 100) {
-            k.go("lose", {score: 0})
+            k.go("lose", {score: score})
         }
+        
 
         const currentCamPos = k.camPos()
 
@@ -82,6 +93,16 @@ k.scene("main", () => {
             k.camPos(player.pos.x, currentCamPos.y)
         }
 
+        if(pets.ceviz) {
+            pets.ceviz.pos = player.pos.add(-30, 0)
+        }
+        if(pets.ares) {
+            pets.ares.pos = player.pos.add(-60, 0)
+        }
+
+        if(player.isGrounded()) {
+            jumping = false
+        }
 
 
         heartIcon.pos = k.vec2(k.camPos().x - (k.width() / 2.05), heartIcon.pos.y)
@@ -93,7 +114,8 @@ k.scene("main", () => {
 
     k.onKeyPress("space", () => {
         if (player.isGrounded()) {
-            player.jump(650)
+            player.jump(660)
+            jumping = true
         }
     })
 
@@ -105,18 +127,7 @@ k.scene("main", () => {
         player.move(MOVE_SPEED, 0)
     })
 
-    const l1 = [
-        "",
-        generate.blocks(),
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        generate.floor()
-    
-    ]
+    const l1 = levels.first
     
     const level = k.addLevel(l1, {
         height: 20,
@@ -151,6 +162,11 @@ k.scene("main", () => {
             k.area(),
             "flower"
         ],
+        "D": () => [
+            k.sprite("dy"),
+            k.area(),
+            "dy"
+        ],
         "E": () => [
             k.sprite("enemy"),
             k.area({ width: 16, height: 16 }),
@@ -160,7 +176,7 @@ k.scene("main", () => {
             enemy(),
             k.origin("bot"),
             "enemy"
-        ],
+        ]
         // "W": () => [
         //     k.sprite("wall"),
         //     k.area(),
@@ -182,6 +198,16 @@ k.scene("main", () => {
         }
     })
 
+    player.onCollide("enemy", (enemy) => {
+        if(jumping) {
+            enemy.destroy()
+        }
+
+        else {
+            k.go("lose", {score: score})
+        }
+    })
+
     player.onCollide("heart", (heart) => {
         score.heart++
         heartLabel.value++
@@ -197,6 +223,36 @@ k.scene("main", () => {
 
     player.onCollide("floor", (floor) => {
         collidingFloor = floor 
+
+
+        if(floor.gridPos.x > (ELEMENT_COUNT / 4) && !pets.ceviz) {
+            pets.ceviz = k.add([
+                k.sprite("ceviz"), 
+                k.height(20),
+                k.width(20),
+                k.pos(player.pos.add(-30, 0)),
+                // k.body(), 
+                k.area(),
+                k.scale(0.7),
+                // k.solid(),
+                "friendly"
+            ])
+        }
+
+        if(floor.gridPos.x > (ELEMENT_COUNT / 2) && !pets.ares) {
+            pets.ares = k.add([
+                k.sprite("ares"), 
+                k.height(20),
+                k.width(20),
+                k.pos(player.pos.add(-60, 0)),
+                // k.body(), 
+                k.area(),
+                k.scale(0.7),
+                // k.solid(),
+                "friendly"
+            ])
+        }
+        console.debug(floor.gridPos)
 
         // level.spawn("E", collidingFloor.gridPos.sub(-100, 0))
     })
@@ -238,8 +294,8 @@ const enemy = () => {
         id: "enemy",
         require: ["pos", "area", "sprite", "patrol"],
         isAlive: true,
-        update() {},
-        squash() {
+        update: () => {},
+        squash: () => {
             console.log("squashing")
             this.isAlive = false
             this.unuse("patrol")
@@ -253,39 +309,40 @@ const enemy = () => {
   }
 
 
-const generate = {
-    blocks: () => {
-        const blocks = []
-        for (let i = 5; i < ELEMENT_COUNT; i++) {
-            const r = Math.floor(Math.random() * 50)
-            if(i % r === 0) {
-                if(i % 3 === 0) {
-                    blocks.push("*")
-                }
-                else {
-                    blocks.push("$")
-                }
-                continue
-            }
+// const generate = {
+//     blocks: () => {
+//         const blocks = []
+//         for (let i = 5; i < ELEMENT_COUNT; i++) {
+//             const r = Math.floor(Math.random() * 50)
+//             if(i % r === 0) {
+//                 if(i % 3 === 0 || i % 2 === 0) {
+//                     blocks.push("*")
+//                 }
+//                 else {
+//                     blocks.push("$")
+//                 }
+//                 continue
+//             }
     
-            blocks.push(" ")
-        }
+//             blocks.push(" ")
+//         }
 
-        return blocks.join()
-    },
-    floor: () => {
-        const floor = []
-        for (let i = 0; i < ELEMENT_COUNT; i++) {
-            const r = Math.round(Math.random() * 100)
-            if (i > 10 && i % r === 0) {
-                for (let k = 0; k < 5; k++) {
-                    floor.push(" ")
-                }
-            }
+//         return blocks.join()
+//     },
+//     floor: () => {
+//         //TODO: Find out a better solution for checkpoint :D
+//         const floor = []
+//         for (let i = 0; i < ELEMENT_COUNT; i++) {
+//             const r = Math.round(Math.random() * 100)
+//             if (i > 10 && i % r === 0 && i < (ELEMENT_COUNT - 20)) {
+//                 for (let k = 0; k < 3; k++) {
+//                     floor.push(" ")
+//                 }
+//             }
     
-            floor.push("=")
-        }
+//             floor.push("=")
+//         }
 
-        return floor.join("")
-    }
-}
+//         return floor.join("")
+//     }
+// }

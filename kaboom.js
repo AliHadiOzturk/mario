@@ -1,5 +1,4 @@
 import kaboom from "kaboom"
-//For intellisense
 const k = kaboom({
     global: false,
     background: [134, 135, 247],
@@ -7,6 +6,9 @@ const k = kaboom({
 })
 
 k.loadSprite("aho", "me.png")
+k.loadSprite("dy", "dilara.png")
+k.loadSprite("ceviz", "ceviz.png")
+k.loadSprite("ares", "ares.png")
 k.loadSprite("brick", "brick.png")
 k.loadSprite("unstopped", "unstopped-brick.png")
 k.loadSprite("question", "question-brick.png")
