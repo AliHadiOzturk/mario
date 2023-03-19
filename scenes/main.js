@@ -18,6 +18,10 @@ let pets = {
     ares: null
 }
 
+let characters = {
+    dy: null
+}
+
 let jumping = false
 
 
@@ -94,10 +98,14 @@ k.scene("main", () => {
         }
 
         if(pets.ceviz) {
-            pets.ceviz.pos = player.pos.add(-30, 0)
+            pets.ceviz.pos = player.pos.add(characters.dy ? -60 : -30, 0)
         }
         if(pets.ares) {
-            pets.ares.pos = player.pos.add(-60, 0)
+            pets.ares.pos = player.pos.add(characters.dy ? -90 : -60, 0)
+        }
+
+        if(characters.dy) {
+            characters.dy.pos = player.pos.add(-30, 0)
         }
 
         if(player.isGrounded()) {
@@ -165,7 +173,15 @@ k.scene("main", () => {
         "D": () => [
             k.sprite("dy"),
             k.area(),
+            k.body(),
+            k.solid(),
             "dy"
+        ],
+        "|": () => [
+            k.sprite("castle"),
+            k.area(),
+            k.solid(),
+            "castle"
         ],
         "E": () => [
             k.sprite("enemy"),
@@ -190,13 +206,18 @@ k.scene("main", () => {
             if(Boolean(Math.round(Math.random()))) {
                 type = "f"
             }
-            console.debug(obj)
             level.spawn(type, obj.gridPos.sub(0, 1))
             level.spawn("$", obj.gridPos.sub(0, 0))
 
             obj.destroy()
         }
     })
+
+    // k.get("enemy").forEach(enemy => {
+    //     enemy.onHeadbutt((obj) => {
+    //         enemy.destroy()
+    //     })
+    // })
 
     player.onCollide("enemy", (enemy) => {
         if(jumping) {
@@ -206,6 +227,23 @@ k.scene("main", () => {
         else {
             k.go("lose", {score: score})
         }
+    })
+
+    player.onCollide("castle", () => {
+        const video = document.createElement("video")
+        video.height = window.innerHeight
+        video.width = window.innerWidth
+        video.src = "after_credit.mp4"
+        video.autoplay = true
+        video.play()
+        video.controls = true
+        // document.body.removeChild()
+        document.getElementsByTagName("canvas")[0]?.remove()
+        document.body.appendChild(video)
+    })
+
+    player.onCollide("dy", (dy) => {
+        characters.dy = dy
     })
 
     player.onCollide("heart", (heart) => {
@@ -252,7 +290,6 @@ k.scene("main", () => {
                 "friendly"
             ])
         }
-        console.debug(floor.gridPos)
 
         // level.spawn("E", collidingFloor.gridPos.sub(-100, 0))
     })

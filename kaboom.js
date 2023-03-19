@@ -2,13 +2,14 @@ import kaboom from "kaboom"
 const k = kaboom({
     global: false,
     background: [134, 135, 247],
-    debug: true
+    debug: true,
 })
 
 k.loadSprite("aho", "me.png")
 k.loadSprite("dy", "dilara.png")
 k.loadSprite("ceviz", "ceviz.png")
 k.loadSprite("ares", "ares.png")
+k.loadSprite("castle", "castle.png")
 k.loadSprite("brick", "brick.png")
 k.loadSprite("unstopped", "unstopped-brick.png")
 k.loadSprite("question", "question-brick.png")
