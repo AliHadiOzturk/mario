@@ -230,7 +230,7 @@ k.scene("main", () => {
     })
 
     player.onCollide("castle", () => {
-        window.location.href = "./credit.html"
+        window.location.href = "./after_credit.mp4"
     })
 
     player.onCollide("dy", (dy) => {
